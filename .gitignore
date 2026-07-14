@@ -1,0 +1,20 @@
+# Python
+venv/
+.venv/
+env/
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+
+# React
+node_modules/
+dist/
+
+# VSCode y Mac
+.vscode/
+.DS_Store
+
+# Variables de entorno
+.env

@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import {
-  actualizarLibro,
-  crearLibro,
-  eliminarLibro,
-  obtenerLibros,
-} from "../services/libroService";
-import { obtenerAutor } from "../services/autorService";
-import { crearCategoria, obtenerCategoria } from "../services/categoryService";
+  actualizarCategoria,
+  crearCategoria,
+  obtenerCategoria,
+} from "../services/categoryService";
+import "./catalog.css";
 
-export const category = () => {
+export const Category = () => {
   const [categorias, setCategorias] = useState([]);
+  const [categoriaEditar, setCategoriaEditar] = useState(null);
   const [form, setForm] = useState({
     name: "",
   });
+  const [error, setError] = useState("");
 
   useEffect(() => {
     cargarCategorias();
@@ -32,66 +32,75 @@ export const category = () => {
 
   const guardarCategoria = async (e) => {
     e.preventDefault();
+    setError("");
 
-    // if (libroEditar) {
-    //   await actualizarLibro(libroEditar.id, form);
-    // } else {
-      await crearCategoria(form);
-    // }
+    try {
+      if (categoriaEditar) {
+        await actualizarCategoria(categoriaEditar.id, form);
+      } else {
+        await crearCategoria(form);
+      }
 
-    setForm({
-      name: "",
-    });
+      setCategoriaEditar(null);
+      setForm({
+        name: "",
+      });
 
-    cargarCategorias();
+      cargarCategorias();
+    } catch {
+      setError("No se pudo guardar la categoria.");
+    }
   };
 
-  // const eliminar = async (id) => {
-  //   await eliminarLibro(id);
-  //   cargarLibros();
-  // };
+  const editar = (categoria) => {
+    setCategoriaEditar(categoria);
+    setForm({
+      name: categoria.name,
+    });
+  };
 
-  // const editar = async (data) => {
-  //   setLibroEditar(data);
-  //   setForm({
-  //     titulo: data.titulo,
-  //     descripcion: data.descripcion,
-  //     autor: data.autor,
-  //   });
-  // };
+  const cancelarEdicion = () => {
+    setCategoriaEditar(null);
+    setForm({ name: "" });
+  };
 
   return (
-    <main>
+    <main className="catalog-page">
       <h1>Gestión de Categorias</h1>
 
+      {error && <p className="catalog-error">{error}</p>}
+
       <section>
-        <h2>Crear Categorias</h2>
+        <h2>{categoriaEditar ? "Editar Categoria" : "Crear Categoria"}</h2>
 
-        <form onSubmit={guardarCategoria}>
-          <div>
+        <form className="catalog-form" onSubmit={guardarCategoria}>
+          <div className="catalog-field">
             <label>Nombre de categoria</label>
-            <br />
-
             <input name="name" value={form.name} onChange={handleChange} />
           </div>
 
-          <br />
-
-          {/* <button type="submit">{"Guardar"}</button> */}
-          <button type="submit">{"Guardar"}</button>
+          <div className="catalog-form-actions">
+            <button type="submit" className="btn">
+              {categoriaEditar ? "Actualizar" : "Guardar"}
+            </button>
+            {categoriaEditar && (
+              <button type="button" className="btn btn-secondary" onClick={cancelarEdicion}>
+                Cancelar
+              </button>
+            )}
+          </div>
         </form>
       </section>
-
-      <hr />
 
       <section>
         <h2>Listado de Categorias</h2>
 
-        <table border="1" cellPadding="10">
+        <table className="catalog-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Name</th>
+              <th>Acciones</th>
             </tr>
           </thead>
 
@@ -102,8 +111,9 @@ export const category = () => {
                 <td>{categoria.name}</td>
 
                 <td>
-                  {/* <button onClick={() => editar(libro)}>Editar</button>{" "} */}
-                  {/* <button onClick={() => eliminar(libro.id)}>Eliminar</button> */}
+                  <button className="btn btn-secondary" onClick={() => editar(categoria)}>
+                    Editar
+                  </button>
                 </td>
               </tr>
             ))}

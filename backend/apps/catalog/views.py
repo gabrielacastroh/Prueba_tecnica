@@ -1,8 +1,9 @@
-from django.shortcuts import render
-from rest_framework import viewsets
-from .models import Category, Product 
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from rest_framework.decorators import action
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -12,13 +13,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     queryset = Product.objects.all()
 
-    filterset_fields = {
-        "category": ["exact"],
-        "name": ["icontains"],
-    }
+    filterset_fields = ["category_id"]
+    search_fields = ["name"]
 
     def get_queryset(self):
         return Product.objects.filter(is_active=True).select_related("category")
